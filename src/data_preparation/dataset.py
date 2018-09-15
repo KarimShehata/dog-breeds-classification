@@ -44,7 +44,7 @@ def read_test_tf_record(record):
 
 def features_dataset():
     filenames = tf.placeholder(tf.string)
-    ds = tf.contrib.data.TFRecordDataset(filenames, compression_type='') \
+    ds = tf.data.TFRecordDataset(filenames, compression_type='') \
         .map(read_tf_record)
 
     return ds, filenames

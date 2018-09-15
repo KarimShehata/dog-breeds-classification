@@ -4,10 +4,10 @@ import xml.etree.ElementTree
 import tensorflow as tf
 
 from src.common import consts
-import dataset
+from .dataset import *
 from src.freezing import inception
 from src.common import paths
-from tf_record_utils import *
+from .tf_record_utils import *
 
 images_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Images')
 annotations_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Annotation')
@@ -30,7 +30,8 @@ def parse_annotation(path):
 
 def parse_image(breed_dir, filename):
     path = os.path.join(images_root_dir, breed_dir, filename + '.jpg')
-    img_raw = open(path, 'r').read()
+
+    img_raw = open(path, 'rb').read()
 
     return img_raw
 
@@ -46,7 +47,7 @@ def build_stanford_example(img_raw, inception_output, one_hot_label, annotation)
 
 
 if __name__ == '__main__':
-    one_hot_encoder, _ = dataset.one_hot_label_encoder()
+    one_hot_encoder, _ = one_hot_label_encoder()
 
     with tf.Graph().as_default(), \
          tf.Session().as_default() as sess, \

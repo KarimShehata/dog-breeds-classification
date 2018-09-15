@@ -1,6 +1,6 @@
 import os
 import sys
-import urllib2
+import urllib.request
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,7 @@ def infer(model_name, img_raw):
 
 def classify(resource_type, path):
     if resource_type == 'uri':
-        response = urllib2.urlopen(path)
+        response = urllib.request.urlopen(path)
         img_raw = response.read()
     else:
         with open(path, 'r') as f:

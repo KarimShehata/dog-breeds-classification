@@ -1,7 +1,7 @@
 import os
 
 JPEG_EXT = '.jpg'
-DATA_ROOT = 'data/'
+DATA_ROOT = 'data'
 TRAIN_DIR = os.path.join(DATA_ROOT, 'train')
 TEST_DIR = os.path.join(DATA_ROOT, 'test')
 #TRAIN_TF_RECORDS = os.path.join(ROOT, 'dogs_train.tfrecords')
