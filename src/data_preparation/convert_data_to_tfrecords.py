@@ -1,5 +1,6 @@
 import os
 import xml.etree.ElementTree
+import random
 
 import tensorflow as tf
 
@@ -42,7 +43,9 @@ if __name__ == '__main__':
 
         for _dir in [d for d in os.listdir(images_root_dir)]:
             print(_dir)
-            for image_file in [f for f in os.listdir(os.path.join(images_root_dir, _dir))]:      
+            listdir = os.listdir(os.path.join(images_root_dir, _dir))
+            random.shuffle(listdir)
+            for image_file in listdir:      
                 print('-' + image_file)
                 one_hot_label = one_hot_encoder([_dir]).reshape(-1).tolist()
                 image = parse_image(_dir, image_file)
