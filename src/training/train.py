@@ -12,15 +12,15 @@ from src.common import paths
 def train_dev_split(sess, tf_records_path, dev_set_size=2000, batch_size=64, train_sample_size=2000):
     ds_, filename = dataset.features_dataset()
 
-    ds = ds_.shuffle(buffer_size=20000)
+    ds = ds_.shuffle(buffer_size=consts.IMAGE_COUNT)
 
     train_ds = ds.skip(dev_set_size).repeat()
-    train_ds_iter = train_ds.shuffle(buffer_size=20000) \
+    train_ds_iter = train_ds.shuffle(buffer_size=consts.IMAGE_COUNT) \
         .batch(batch_size) \
         .make_initializable_iterator()
 
     train_sample_ds = ds.skip(dev_set_size)
-    train_sample_ds_iter = train_sample_ds.shuffle(buffer_size=20000) \
+    train_sample_ds_iter = train_sample_ds.shuffle(buffer_size=consts.IMAGE_COUNT) \
         .take(train_sample_size) \
         .batch(train_sample_size) \
         .make_initializable_iterator()

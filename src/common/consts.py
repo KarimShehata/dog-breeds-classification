@@ -1,4 +1,5 @@
-CLASSES_COUNT = 120
+CLASSES_COUNT = 50
+IMAGE_COUNT = 800
 INCEPTION_CLASSES_COUNT = 2048
 INCEPTION_OUTPUT_FIELD = 'inception_output'
 LABEL_ONE_HOT_FIELD = 'label_one_hot'
@@ -10,11 +11,11 @@ OUTPUT_TENSOR_NAME = OUTPUT_NODE_NAME + ':0'
 HEAD_INPUT_NODE_NAME = 'x'
 HEAD_INPUT_TENSOR_NAME = HEAD_INPUT_NODE_NAME + ':0'
 
-DEV_SET_SIZE = 3000
-TRAIN_SAMPLE_SIZE = 3000
+DEV_SET_SIZE = 400
+TRAIN_SAMPLE_SIZE = 400
 
 # name of the model being referenced by all other scripts
-CURRENT_MODEL_NAME = 'stanford_5_64_0001'
+CURRENT_MODEL_NAME = 'cartridge_5_64_0001'
 # sets up number of layers and number of units in each layer for
 # the "head" dense neural network stacked on top of the Inception
 # pre-trained model.

@@ -25,7 +25,7 @@ def infer(model_name, img_raw):
 
         breeds = one_hot_decoder(np.identity(consts.CLASSES_COUNT)).reshape(-1)
 
-        # print(breeds)
+        print(breeds)
 
         df = pd.DataFrame(data={'prob': probs.reshape(-1), 'breed': breeds})
 
@@ -38,7 +38,7 @@ def classify(resource_type, path):
         response = urllib.request.urlopen(path)
         img_raw = response.read()
     else:
-        with open(path, 'r') as f:
+        with open(path, 'rb') as f:
             img_raw = f.read()
 
     return infer(consts.CURRENT_MODEL_NAME, img_raw)

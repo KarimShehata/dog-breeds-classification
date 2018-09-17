@@ -12,7 +12,6 @@ from .tf_record_utils import *
 images_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Images')
 annotations_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Annotation')
 
-
 def parse_annotation(path):
     xml_root = xml.etree.ElementTree.parse(path).getroot()
     object = xml_root.findall('object')[0]
@@ -27,14 +26,12 @@ def parse_annotation(path):
         'bndbox_ymax': bound_box.findall('ymax')[0].text
     }
 
-
 def parse_image(breed_dir, filename):
     path = os.path.join(images_root_dir, breed_dir, filename + '.jpg')
 
     img_raw = open(path, 'rb').read()
 
     return img_raw
-
 
 def build_stanford_example(img_raw, inception_output, one_hot_label, annotation):
     example = tf.train.Example(features=tf.train.Features(feature={
@@ -44,7 +41,6 @@ def build_stanford_example(img_raw, inception_output, one_hot_label, annotation)
         consts.INCEPTION_OUTPUT_FIELD: float_feature(inception_output)}))
 
     return example
-
 
 if __name__ == '__main__':
     one_hot_encoder, _ = one_hot_label_encoder()
