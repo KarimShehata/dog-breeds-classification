@@ -25,7 +25,7 @@ def infer(model_name, img_raw):
 
         breeds = one_hot_decoder(np.identity(consts.CLASSES_COUNT)).reshape(-1)
 
-        print(breeds)
+        # print(breeds)
 
         df = pd.DataFrame(data={'prob': probs.reshape(-1), 'breed': breeds})
 

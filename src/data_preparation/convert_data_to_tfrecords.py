@@ -41,11 +41,13 @@ if __name__ == '__main__':
             inception_output = incept_model(sess, img).reshape(-1).tolist()
             return inception_output
 
-        for _dir in [d for d in os.listdir(images_root_dir)]:
+        dirlist = os.listdir(images_root_dir)
+        random.shuffle(dirlist)
+        for _dir in dirlist:
             print(_dir)
-            listdir = os.listdir(os.path.join(images_root_dir, _dir))
-            random.shuffle(listdir)
-            for image_file in listdir:      
+            imagelist = os.listdir(os.path.join(images_root_dir, _dir))
+            random.shuffle(imagelist)
+            for image_file in imagelist:      
                 print('-' + image_file)
                 one_hot_label = one_hot_encoder([_dir]).reshape(-1).tolist()
                 image = parse_image(_dir, image_file)
