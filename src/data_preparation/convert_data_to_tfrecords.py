@@ -10,10 +10,12 @@ from src.freezing import inception
 from src.common import paths
 from .tf_record_utils import *
 
-images_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Training')
+training_images_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Clean_200_train_solid_bg', 'Training')
+validation_images_root_dir = os.path.join(paths.STANFORD_DS_DIR, 'Clean_200_train_solid_bg', 'Validation')
 
 def parse_image(_dir, _filename):
-    path = os.path.join(images_root_dir, _dir, _filename)
+    path = os.path.join(_dir, _filename)
+    print('path: ' + path)
     img_raw = open(path, 'rb').read()
 
     return img_raw
@@ -32,7 +34,7 @@ if __name__ == '__main__':
 
     with tf.Graph().as_default(), \
          tf.Session().as_default() as sess, \
-         tf.python_io.TFRecordWriter(paths.STANFORD_DS_TF_RECORDS,
+         tf.python_io.TFRecordWriter(paths.TAINING_DS_TF_RECORDS,
                                     tf.python_io.TFRecordCompressionType.NONE) as writer:
 
         incept_model = inception.inception_model()
@@ -41,16 +43,29 @@ if __name__ == '__main__':
             inception_output = incept_model(sess, img).reshape(-1).tolist()
             return inception_output
 
-        dirlist = os.listdir(images_root_dir)
+        # dirlist = os.listdir(validation_images_root_dir)
+        # #random.shuffle(dirlist)
+        # for _dir in dirlist[:consts.CLASSES_COUNT]:
+        #     print(_dir)
+        #     imagelist = os.listdir(os.path.join(validation_images_root_dir, _dir))
+        #     #random.shuffle(imagelist)
+        #     for image_file in imagelist:      
+        #         print('-' + image_file)
+        #         one_hot_label = one_hot_encoder([_dir]).reshape(-1).tolist()
+        #         image = parse_image(os.path.join(validation_images_root_dir, _dir), image_file)
+        #         example = build_stanford_example(image, get_inception_ouput(image), one_hot_label, _dir)
+        #         writer.write(example.SerializeToString())
+
+        dirlist = os.listdir(training_images_root_dir)
         random.shuffle(dirlist)
-        for _dir in dirlist:
+        for _dir in dirlist[:consts.CLASSES_COUNT]:
             print(_dir)
-            imagelist = os.listdir(os.path.join(images_root_dir, _dir))
+            imagelist = os.listdir(os.path.join(training_images_root_dir, _dir))
             random.shuffle(imagelist)
             for image_file in imagelist:      
                 print('-' + image_file)
                 one_hot_label = one_hot_encoder([_dir]).reshape(-1).tolist()
-                image = parse_image(_dir, image_file)
+                image = parse_image(os.path.join(training_images_root_dir, _dir), image_file)
                 example = build_stanford_example(image, get_inception_ouput(image), one_hot_label, _dir)
                 writer.write(example.SerializeToString())
 

@@ -37,7 +37,7 @@ def denseNNModel(input_node, layers, gamma=0.1):
 
     with tf.name_scope("cost"):
         cost = tf.reduce_mean(
-            tf.nn.softmax_cross_entropy_with_logits(labels=tf.transpose(y), logits=tf.transpose(z)))  # +\
+            tf.nn.softmax_cross_entropy_with_logits_v2(labels=tf.transpose(y), logits=tf.transpose(z)))  # +\
         # gamma * tf.reduce_sum([tf.nn.l2_loss(w) for w in Ws])
         summaries.append(tf.summary.scalar('cost', cost))
 

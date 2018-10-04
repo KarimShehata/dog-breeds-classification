@@ -1,5 +1,4 @@
 import os
-
 import pyprind
 import tensorflow as tf
 
@@ -8,19 +7,19 @@ from src.data_preparation import dataset
 from src.models import denseNN
 from src.common import paths
 
+def train_dev_split(sess, tf_records_path, dev_set_size, batch_size, train_sample_size):
 
-def train_dev_split(sess, tf_records_path, dev_set_size=2000, batch_size=64, train_sample_size=2000):
     ds_, filename = dataset.features_dataset()
 
-    ds = ds_.shuffle(buffer_size=consts.IMAGE_COUNT)
+    ds = ds_.shuffle(buffer_size=consts.TRAIN_IMAGE_COUNT)
 
     train_ds = ds.skip(dev_set_size).repeat()
-    train_ds_iter = train_ds.shuffle(buffer_size=consts.IMAGE_COUNT) \
+    train_ds_iter = train_ds.shuffle(buffer_size=consts.TRAIN_IMAGE_COUNT) \
         .batch(batch_size) \
         .make_initializable_iterator()
 
     train_sample_ds = ds.skip(dev_set_size)
-    train_sample_ds_iter = train_sample_ds.shuffle(buffer_size=consts.IMAGE_COUNT) \
+    train_sample_ds_iter = train_sample_ds.shuffle(buffer_size=consts.TRAIN_IMAGE_COUNT) \
         .take(train_sample_size) \
         .batch(train_sample_size) \
         .make_initializable_iterator()
@@ -33,6 +32,27 @@ def train_dev_split(sess, tf_records_path, dev_set_size=2000, batch_size=64, tra
 
     return train_ds_iter.get_next(), dev_ds_iter.get_next(), train_sample_ds_iter.get_next()
 
+    # ds_, filename = dataset.features_dataset()
+
+    # dev_ds_iter = ds_.take(dev_set_size).batch(dev_set_size).make_initializable_iterator()
+
+    # ds = ds_.skip(dev_set_size).take(consts.TRAIN_IMAGE_COUNT).shuffle(buffer_size=consts.TRAIN_IMAGE_COUNT)
+
+    # ds = ds.repeat()
+    # train_ds_iter = ds.shuffle(buffer_size=consts.TRAIN_IMAGE_COUNT) \
+    #     .batch(batch_size) \
+    #     .make_initializable_iterator()
+
+    # train_sample_ds_iter = ds.shuffle(buffer_size=consts.TRAIN_SAMPLE_SIZE) \
+    #     .take(train_sample_size) \
+    #     .batch(train_sample_size) \
+    #     .make_initializable_iterator()
+
+    # sess.run(train_ds_iter.initializer, feed_dict={filename: tf_records_path})
+    # sess.run(dev_ds_iter.initializer, feed_dict={filename: tf_records_path})
+    # sess.run(train_sample_ds_iter.initializer, feed_dict={filename: tf_records_path})
+
+    # return train_ds_iter.get_next(), dev_ds_iter.get_next(), train_sample_ds_iter.get_next()
 
 def error(x, output_probs, name):
     expected = tf.placeholder(tf.float32, shape=(consts.CLASSES_COUNT, None), name='expected')
@@ -50,23 +70,19 @@ def error(x, output_probs, name):
 
     return run
 
-
 def make_model_name(prefix, batch_size, learning_rate):
     return '%s_%d_%s' % (prefix, batch_size, str(learning_rate).replace('0.', ''))
 
-
 if __name__ == '__main__':
-    BATCH_SIZE = 64
-    EPOCHS_COUNT = 5000
-    LEARNING_RATE = 0.0001
 
     model_name = consts.CURRENT_MODEL_NAME
 
     with tf.Graph().as_default() as g, tf.Session().as_default() as sess:
         next_train_batch, get_dev_ds, get_train_sample_ds = \
-            train_dev_split(sess, paths.TRAIN_TF_RECORDS,
-                            dev_set_size=consts.DEV_SET_SIZE,
-                            batch_size=BATCH_SIZE,
+            train_dev_split(sess, 
+                            paths.TAINING_DS_TF_RECORDS,
+                            dev_set_size=consts.VALIDATION_IMAGE_COUNT,
+                            batch_size=consts.BATCH_SIZE,
                             train_sample_size=consts.TRAIN_SAMPLE_SIZE)
 
         dev_set = sess.run(get_dev_ds)
@@ -78,9 +94,8 @@ if __name__ == '__main__':
         train_sample_y_one_hot = train_sample[consts.LABEL_ONE_HOT_FIELD]
 
         x = tf.placeholder(dtype=tf.float32, shape=(consts.INCEPTION_CLASSES_COUNT, None), name="x")
-        cost, output_probs, y, nn_summaries = denseNN.denseNNModel(
-            x, consts.HEAD_MODEL_LAYERS, gamma=0.001)
-        optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(cost)
+        cost, output_probs, y, nn_summaries = denseNN.denseNNModel(x, consts.HEAD_MODEL_LAYERS, gamma=0.001)
+        optimizer = tf.train.AdamOptimizer(learning_rate=consts.LEARNING_RATE).minimize(cost)
 
         dev_error_eval = error(x, output_probs, name='test_error')
         train_error_eval = error(x, output_probs, name='train_error')
@@ -90,11 +105,11 @@ if __name__ == '__main__':
 
         writer = tf.summary.FileWriter(os.path.join(paths.SUMMARY_DIR, model_name))
 
-        bar = pyprind.ProgBar(EPOCHS_COUNT, update_interval=1, width=60)
+        bar = pyprind.ProgBar(consts.EPOCHS_COUNT, update_interval=1, width=60)
 
         saver = tf.train.Saver()
 
-        for epoch in range(0, EPOCHS_COUNT):
+        for epoch in range(0, consts.EPOCHS_COUNT):
             batch_features = sess.run(next_train_batch)
             batch_inception_output = batch_features[consts.INCEPTION_OUTPUT_FIELD]
             batch_y = batch_features[consts.LABEL_ONE_HOT_FIELD]
@@ -114,7 +129,7 @@ if __name__ == '__main__':
 
             writer.flush()
 
-            if epoch % 10 == 0 or epoch == EPOCHS_COUNT:
+            if epoch % 10 == 0 or epoch == consts.EPOCHS_COUNT:
                 saver.save(sess, os.path.join(paths.CHECKPOINTS_DIR, model_name), latest_filename=model_name + '_latest')
 
             bar.update()
